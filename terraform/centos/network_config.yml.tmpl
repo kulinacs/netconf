@@ -1,0 +1,16 @@
+network:
+  version: 1
+  config: 
+    - type: physical
+      name: eth0
+      subnets:
+%{ if address != "" ~}
+        - type: static
+          address: ${address}
+          gateway: ${gateway}
+%{ else ~}
+        - type: dhcp
+%{ endif ~}
+    - type: nameserver
+      address:
+        - 8.8.8.8
