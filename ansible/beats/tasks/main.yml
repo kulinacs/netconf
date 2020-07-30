@@ -1,0 +1,51 @@
+---
+- name: Add Elasticsearch repository
+  yum_repository:
+    name: elasticsearch
+    description: Elasticsearch repo
+    baseurl: https://artifacts.elastic.co/packages/7.x/yum
+    gpgkey: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+
+- name: Install metricbeat
+  dnf:
+    name:
+      - metricbeat
+    state: installed
+
+- name: Configure metricbeat
+  template:
+    src: metricbeat.yml.j2
+    dest: /etc/metricbeat/metricbeat.yml
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - restart metricbeat
+
+- name: Enable metricbeat
+  service:
+    name: metricbeat
+    state: started
+    enabled : true
+
+- name: Install journalbeat
+  dnf:
+    name:
+      - journalbeat
+    state: installed
+
+- name: Configure journalbeat
+  template:
+    src: journalbeat.yml.j2
+    dest: /etc/journalbeat/journalbeat.yml
+    owner: root
+    group: root
+    mode: '0600'
+  notify:
+    - restart journalbeat
+
+# - name: Enable journalbeat
+#   service:
+#     name: journalbeat
+#     state: started
+#     enabled : true

@@ -1,0 +1,39 @@
+- name: Create elastic directory
+  win_file:
+    path: C:\Elastic
+    state: directory
+
+- name: Download winlogbeat
+  win_get_url:
+    url: https://artifacts.elastic.co/downloads/beats/winlogbeat/winlogbeat-7.7.1-windows-x86_64.zip
+    dest: C:\Elastic\winlogbeat-7.7.1-windows-x86_64.zip
+
+- name: Unzip winlogbeat
+  win_unzip:
+    src: C:\Elastic\winlogbeat-7.7.1-windows-x86_64.zip
+    dest: C:\Program Files\
+    creates: C:\Program Files\winlogbeat
+    register: unzip
+
+- name: Move winlogbeat-7.7.1 to winlogbeat
+  win_shell: move "C:\Program Files\winlogbeat-7.7.1-windows-x86_64" "C:\Program Files\winlogbeat"
+  args:
+    creates: C:\Program Files\winlogbeat
+
+- name: Install winlogbeat service
+  win_shell: .\install-service-winlogbeat.ps1
+  args:
+    chdir: C:\Program Files\winlogbeat
+
+- name: Configure winlogbeat
+  win_template:
+    src: winlogbeat.yml.j2
+    dest: C:\Program Files\winlogbeat\winlogbeat.yml
+  # notify:
+  #   - restart winlogbeat
+
+- name: Enable winlogbeat
+  win_service:
+    name: winlogbeat
+    start_mode: auto
+    state: started

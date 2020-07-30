@@ -1,0 +1,47 @@
+---
+- name: Configure kibana systemd unit
+  template:
+    src: kibana.service.j2
+    dest: /etc/systemd/system/kibana.service
+    owner: root
+    group: root
+    mode: '0644'
+    #validate: /usr/bin/systemd-analyze verify %s
+  notify: 
+    - reload systemd
+    - restart kibana
+
+- name: Flush handlers to ensure unit file is loaded
+  meta: flush_handlers
+
+- name: Create 'kibana' config file
+  template:
+    src: kibana.yml.j2
+    dest: /etc/elastic/kibana/kibana.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart kibana
+
+- name: Create 'kibana' certs directory
+  file:
+    path: /etc/elastic/kibana/certs
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Create 'kibana' ca certificate
+  copy:
+    content: '{{ ca_cert }}'
+    dest: /etc/elastic/kibana/certs/ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart kibana
+
+- name: Start and run kibana service
+  service:
+    name: kibana
+    state: started
+    enabled: true

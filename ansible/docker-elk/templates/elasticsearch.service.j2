@@ -1,0 +1,15 @@
+[Unit]
+Description=Elasticsearch
+After=elk-network.service
+
+[Service]
+TimeoutStartSec=0
+SyslogIdentifier=elasticsearch
+ExecStartPre=-/usr/bin/docker kill {{ elasticsearch_container_name }}
+ExecStartPre=-/usr/bin/docker rm {{ elasticsearch_container_name }}
+ExecStartPre=/usr/bin/docker pull docker.elastic.co/elasticsearch/elasticsearch:{{ elasticsearch_version }}
+ExecStart=/usr/bin/docker run -p 9200:9200 --name {{ elasticsearch_container_name }} --env-file /etc/elastic/elasticsearch/docker.env -v /var/lib/elastic/elasticsearch:/usr/share/elasticsearch/data -v /etc/elastic/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml -v /etc/elastic/elasticsearch/certs/:/usr/share/elasticsearch/config/certs/ --network {{ elk_network }} docker.elastic.co/elasticsearch/elasticsearch:{{ elasticsearch_version }}
+ExecStop=/usr/bin/docker stop {{ elasticsearch_container_name }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,15 @@
+[Unit]
+Description=Logstash
+After=elk-network.service
+
+[Service]
+TimeoutStartSec=0
+SyslogIdentifier=logstash
+ExecStartPre=-/usr/bin/docker kill {{ logstash_container_name }}
+ExecStartPre=-/usr/bin/docker rm {{ logstash_container_name }}
+ExecStartPre=/usr/bin/docker pull docker.elastic.co/logstash/logstash:{{ logstash_version }}
+ExecStart=/usr/bin/docker run -p 5044:5044 -p 514:5144 -p 514:5144/udp --name {{ logstash_container_name }} --network {{ elk_network }} v /etc/elastic/logstash:/usr/share/logstash/pipeline/ docker.elastic.co/logstash/logstash:{{ logstash_version }}
+ExecStop=/usr/bin/docker stop {{ logstash_container_name }}
+
+[Install]
+WantedBy=multi-user.target

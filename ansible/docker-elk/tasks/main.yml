@@ -1,0 +1,32 @@
+---
+- name: Configure elk-network systemd unit
+  template:
+    src: elk-network.service.j2
+    dest: /etc/systemd/system/elk-network.service
+    owner: root
+    group: root
+    mode: '0644'
+    validate: /usr/bin/systemd-analyze verify %s
+  notify: reload systemd
+
+- name: Flush handlers to ensure unit file is loaded
+  meta: flush_handlers
+
+- name: Start and run elk-network service
+  service:
+    name: elk-network
+    state: started
+    enabled: true
+
+- name: Include kibana tasks
+  import_tasks: kibana.yml
+  tags:
+    - kibana
+
+- name: Include elasticsearch tasks
+  import_tasks: elasticsearch.yml
+  tags:
+    - elasticsearch
+
+- name: Include logstash tasks
+  import_tasks: logstash.yml

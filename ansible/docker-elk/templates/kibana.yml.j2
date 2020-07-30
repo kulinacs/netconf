@@ -1,0 +1,9 @@
+# Default Kibana configuration for docker target
+server.name: kibana
+server.host: "0"
+elasticsearch.hosts: [ "https://{{ elasticsearch_container_name }}:9200" ]
+elasticsearch.ssl.certificateAuthorities: [ "/usr/share/kibana/config/certs/ca.crt" ]
+elasticsearch.username: kibana
+elasticsearch.password: 7r3JX4LICddyzQ4ueAnO
+monitoring.ui.container.elasticsearch.enabled: true
+xpack.encryptedSavedObjects.encryptionKey: 'fhjskloppd678ehkdfdlliverpoolfcr'

@@ -1,0 +1,11 @@
+---
+elk_network: elk
+
+elasticsearch_version: '7.7.1'
+elasticsearch_container_name: elasticsearch
+
+logstash_version: '7.7.1'
+logstash_container_name: logstash
+
+kibana_version: '7.7.1'
+kibana_container_name: kibana

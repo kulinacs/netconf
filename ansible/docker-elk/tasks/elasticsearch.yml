@@ -1,0 +1,89 @@
+---
+- name: Create 'elasticsearch' data directory
+  file:
+    path: /var/lib/elastic/elasticsearch
+    owner: root
+    group: root
+    mode: '0777'
+    state: directory
+
+- name: Create 'elasticsearch' configuration directory
+  file:
+    path: /etc/elastic/elasticsearch
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Create 'elasticsearch' env file
+  copy:
+    src: docker.env
+    dest: /etc/elastic/elasticsearch/docker.env
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart elasticsearch
+
+- name: Create 'elasticsearch' config file
+  template:
+    src: elasticsearch.yml.j2
+    dest: /etc/elastic/elasticsearch/elasticsearch.yml
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart elasticsearch
+
+- name: Create 'elasticsearch' certs directory
+  file:
+    path: /etc/elastic/elasticsearch/certs
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Create 'elasticsearch' certificate key
+  copy:
+    content: '{{ ssl_key }}'
+    dest: /etc/elastic/elasticsearch/certs/elasticsearch.key
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart elasticsearch
+
+- name: Create 'elasticsearch' certificate
+  copy:
+    content: '{{ ssl_cert }}'
+    dest: /etc/elastic/elasticsearch/certs/elasticsearch.crt
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart elasticsearch
+
+- name: Create 'elasticsearch' ca certificate
+  copy:
+    content: '{{ ca_cert }}'
+    dest: /etc/elastic/elasticsearch/certs/ca.crt
+    owner: root
+    group: root
+    mode: '0644'
+  notify: restart elasticsearch
+
+- name: Configure elasticsearch systemd unit
+  template:
+    src: elasticsearch.service.j2
+    dest: /etc/systemd/system/elasticsearch.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify: 
+    - reload systemd
+    - restart elasticsearch
+
+- name: Flush handlers to ensure unit file is loaded
+  meta: flush_handlers
+
+- name: Start and run elasticsearch service
+  service:
+    name: elasticsearch
+    state: started
+    enabled: true

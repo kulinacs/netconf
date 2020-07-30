@@ -1,0 +1,12 @@
+[Unit]
+Description=Creates the ELK docker network
+After=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker network create {{ elk_network }}
+RemainAfterExit=true
+ExecStop=/usr/bin/docker network rm {{ elk_network }}
+
+[Install]
+WantedBy=multi-user.target
